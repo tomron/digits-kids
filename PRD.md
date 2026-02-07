@@ -251,9 +251,9 @@ The second approach is cleaner and more predictable. We'll use this one.
 
 ---
 
-## 13. Open Questions for User
+## 13. Resolved Design Decisions
 
-1. **Auto-confirm vs. explicit confirm button?** — Current design auto-applies the operation when both numbers + operation are selected. Alternatively, we could show a preview and require a "Go" button tap. Which do you prefer?
-2. **Animations priority** — Should confetti/celebrations be in MVP, or should we ship a minimal version first and add polish later?
-3. **Any specific color preferences or themes** (e.g., space theme, animals, etc.)?
-4. **Vite vs. simpler build?** — Vite is recommended but if you prefer a simpler setup (just `tsc` + a single HTML file), we can do that too.
+1. **Auto-confirm** — operation applies automatically when both numbers + operation are selected (no "Go" button).
+2. **Confetti in MVP** — celebration animations are included in the initial release.
+3. **Default colorful gradient theme** — no specific theme, use the playful gradient design described above.
+4. **Vite** — used for dev server and bundling.
