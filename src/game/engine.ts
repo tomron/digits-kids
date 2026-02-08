@@ -23,8 +23,19 @@ export function executeMove(state: GameState): GameState {
   const b = state.numbers[j];
   const op = state.selectedOperation;
 
-  // Respect the selection order for non-commutative operations
-  const result = applyOperation(op, a, b);
+  // Try the operation in the selected order
+  let result = applyOperation(op, a, b);
+  let operand1 = a;
+  let operand2 = b;
+
+  // For non-commutative operations (- and /), try both orderings
+  if (result === null && (op === '-' || op === '/')) {
+    result = applyOperation(op, b, a);
+    if (result !== null) {
+      operand1 = b;
+      operand2 = a;
+    }
+  }
 
   if (result === null) {
     return {
@@ -37,8 +48,8 @@ export function executeMove(state: GameState): GameState {
 
   const historyEntry: HistoryEntry = {
     numbers: [...state.numbers],
-    operand1: a,
-    operand2: b,
+    operand1,
+    operand2,
     operation: op,
     result,
   };
@@ -57,7 +68,7 @@ export function executeMove(state: GameState): GameState {
     history: [...state.history, historyEntry],
     moveCount: state.moveCount + 1,
     status: won ? 'won' : 'playing',
-    message: won ? null : `${a} ${op} ${b} = ${result}`,
+    message: won ? null : `${operand1} ${op} ${operand2} = ${result}`,
   };
 }
 
