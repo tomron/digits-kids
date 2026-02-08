@@ -53,6 +53,13 @@ export interface ChallengeStats {
   puzzlesSkipped: number;
 }
 
+export interface SolutionStep {
+  operand1: number;
+  operand2: number;
+  operation: Operation;
+  result: number;
+}
+
 export interface GameState {
   difficulty: Difficulty;
   mode: GameMode;
@@ -68,4 +75,5 @@ export interface GameState {
   timeRemaining: number | null; // in seconds, null for classic mode
   timerStartedAt: number | null; // timestamp when timer started
   challengeStats: ChallengeStats | null; // stats for challenge mode
+  solution: SolutionStep[]; // step-by-step solution to reach the target
 }
