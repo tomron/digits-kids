@@ -18,6 +18,7 @@ A kid-friendly math puzzle game where players combine numbers using arithmetic o
   - Tap numbers and operations to combine them
   - Undo mistakes
   - Restart or generate new puzzles
+  - Get help with the "Explain" button to see a step-by-step solution
   - Skip puzzles in Challenge mode
   - Win celebrations with confetti
   - Track your progress in Challenge mode (solved/skipped)

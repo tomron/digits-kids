@@ -90,9 +90,9 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 │                                         │
 │   Current: 3 + 7 = ?         [Go]       │
 │                                         │
-│   ┌──────┐  ┌──────┐  ┌──────┐         │
-│   │ Undo │  │ Skip  │  │ New  │         │
-│   └──────┘  └──────┘  └──────┘         │
+│   ┌──────┐ ┌─────────┐ ┌──────┐        │
+│   │ Undo │ │ Explain │ │ New  │        │
+│   └──────┘ └─────────┘ └──────┘        │
 │                                         │
 │   Moves: 1 / 3                          │
 └─────────────────────────────────────────┘
@@ -145,6 +145,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 | **Invalid move feedback** | Shake animation + message when operation produces non-integer or negative result |
 | **Undo** | Undo the last operation (restores the two numbers and removes the result) |
 | **Restart** | Reset current puzzle to its initial state |
+| **Explain** | Show step-by-step solution to help users understand how to solve the puzzle |
 | **New Puzzle** | Generate a fresh puzzle at the current difficulty and mode |
 | **Win celebration** | Confetti animation + congratulations message on reaching the target |
 | **Timeout overlay** | Display message when time runs out in Timer mode |
@@ -157,7 +158,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 ### Out of Scope (potential future)
 
 - Daily puzzle mode
-- Hints system
+- Progressive hints system (partial hints before showing full solution)
 - Sound effects
 - Score persistence / streak tracking
 - Multiplayer / competitive mode
