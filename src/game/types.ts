@@ -1,5 +1,6 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Operation = '+' | '-' | '*' | '/';
+export type GameMode = 'classic' | 'timer';
 
 export interface DifficultyConfig {
   label: string;
@@ -49,13 +50,16 @@ export interface HistoryEntry {
 
 export interface GameState {
   difficulty: Difficulty;
+  mode: GameMode;
   target: number;
   numbers: number[];
   initialNumbers: number[];
   selectedIndices: number[];
   selectedOperation: Operation | null;
   history: HistoryEntry[];
-  status: 'playing' | 'won';
+  status: 'playing' | 'won' | 'timeout';
   moveCount: number;
   message: string | null;
+  timeRemaining: number | null; // in seconds, null for classic mode
+  timerStartedAt: number | null; // timestamp when timer started
 }

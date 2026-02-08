@@ -1,4 +1,4 @@
-import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState } from './types';
+import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState, GameMode } from './types';
 import { randomInt, pickRandom, shuffle } from '../utils/random';
 import { applyOperation } from './engine';
 
@@ -8,22 +8,23 @@ import { applyOperation } from './engine';
  * 2. Simulate random valid operations to produce a target
  * 3. This guarantees at least one solution path exists
  */
-export function generatePuzzle(difficulty: Difficulty): GameState {
+export function generatePuzzle(difficulty: Difficulty, mode: GameMode = 'classic'): GameState {
   const config = DIFFICULTY_CONFIGS[difficulty];
 
   // Try until we get a good puzzle
   for (let attempt = 0; attempt < 100; attempt++) {
-    const result = tryGeneratePuzzle(config, difficulty);
+    const result = tryGeneratePuzzle(config, difficulty, mode);
     if (result) return result;
   }
 
   // Fallback — should rarely happen
-  return tryGeneratePuzzle(config, difficulty, true)!;
+  return tryGeneratePuzzle(config, difficulty, mode, true)!;
 }
 
 function tryGeneratePuzzle(
   config: DifficultyConfig,
   difficulty: Difficulty,
+  mode: GameMode,
   forceFallback = false
 ): GameState | null {
   // Generate starting numbers
@@ -65,6 +66,7 @@ function tryGeneratePuzzle(
 
   return {
     difficulty,
+    mode,
     target,
     numbers: shuffle([...numbers]),
     initialNumbers: [...numbers],
@@ -74,6 +76,8 @@ function tryGeneratePuzzle(
     status: 'playing',
     moveCount: 0,
     message: null,
+    timeRemaining: mode === 'timer' ? 60 : null,
+    timerStartedAt: mode === 'timer' ? Date.now() : null,
   };
 }
 

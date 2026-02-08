@@ -23,19 +23,34 @@
 
 ---
 
-## 3. Difficulty Levels
+## 3. Game Modes
 
-| Level | Target Range | Starting Numbers | Operations | Description |
-|-------|-------------|-----------------|------------|-------------|
-| **Easy** | 1 – 50 | 4 numbers (small: 1-15) | + and − only | For younger kids (ages 6-8) |
-| **Medium** | 20 – 150 | 5 numbers (mixed: 1-25) | +, −, × | Introduces multiplication (ages 8-10) |
-| **Hard** | 50 – 300 | 6 numbers (mixed: 1-25, with one larger 10-50) | +, −, ×, ÷ | Full operations, closer to original (ages 10-12) |
+**Digits for Kids** offers two game modes:
 
-The player selects a difficulty level before starting a puzzle. The default is **Easy**.
+| Mode | Description |
+|------|-------------|
+| **Classic** | Unlimited time to solve the puzzle at your own pace |
+| **Timer** | 60-second countdown timer to add challenge and excitement |
+
+The player can switch between modes at any time. The default is **Classic**.
 
 ---
 
-## 4. Puzzle Generation
+## 4. Difficulty Levels
+
+| Level | Target Range | Starting Numbers | Operations | Layout | Description |
+|-------|-------------|-----------------|------------|--------|-------------|
+| **Easy** | 1 – 50 | 4 numbers (small: 1-15) | + and − only | Flex wrap | For younger kids (ages 6-8) |
+| **Medium** | 20 – 150 | 5 numbers (mixed: 1-25) | +, −, × | Flex wrap | Introduces multiplication (ages 8-10) |
+| **Hard** | 50 – 300 | 6 numbers (mixed: 1-25, with one larger 10-50) | +, −, ×, ÷ | 2×3 grid | Full operations, closer to original (ages 10-12) |
+
+The player selects a difficulty level before starting a puzzle. The default is **Easy**.
+
+**Note:** In Hard mode, the 6 numbers are displayed in a 2-row by 3-column grid layout for better visual organization.
+
+---
+
+## 5. Puzzle Generation
 
 Puzzles are **randomly generated on the client** with a guarantee that a solution exists:
 1. Pick random starting numbers for the chosen difficulty.
@@ -44,15 +59,17 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 ---
 
-## 5. Gameplay Flow
+## 6. Gameplay Flow
 
 ```
 ┌─────────────────────────────────────────┐
 │           DIGITS FOR KIDS               │
 │                                         │
+│     Mode: [Classic] [Timer (60s)]       │
 │     Difficulty: [Easy] [Med] [Hard]     │
 │                                         │
 │         Target: ★ 42 ★                  │
+│            Timer: 0:45                  │
 │                                         │
 │   ┌────┐ ┌────┐ ┌────┐ ┌────┐          │
 │   │  3 │ │  7 │ │ 10 │ │  5 │          │
@@ -83,21 +100,26 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 ---
 
-## 6. Features
+## 7. Features
 
 ### MVP (v1.0)
 
 | Feature | Description |
 |---------|-------------|
+| **Game modes** | Choose between Classic (unlimited time) or Timer (60-second countdown) |
+| **Timer display** | Real-time countdown timer in Timer mode with timeout handling |
 | **Puzzle board** | Display target number and available number tiles |
+| **Hard mode grid layout** | 2×3 grid layout for 6 numbers in Hard difficulty |
 | **Operation buttons** | +, −, ×, ÷ (filtered by difficulty) |
 | **Number selection** | Tap-to-select interaction with visual highlights |
 | **Auto-resolve** | Automatically compute and apply operation when two numbers + operation are selected |
 | **Invalid move feedback** | Shake animation + message when operation produces non-integer or negative result |
 | **Undo** | Undo the last operation (restores the two numbers and removes the result) |
 | **Restart** | Reset current puzzle to its initial state |
-| **New Puzzle** | Generate a fresh puzzle at the current difficulty |
+| **New Puzzle** | Generate a fresh puzzle at the current difficulty and mode |
 | **Win celebration** | Confetti animation + congratulations message on reaching the target |
+| **Timeout overlay** | Display message when time runs out in Timer mode |
+| **Mode selector** | Toggle between Classic / Timer modes |
 | **Difficulty selector** | Toggle between Easy / Medium / Hard before or between puzzles |
 | **Move counter** | Show how many operations the player has used |
 | **Responsive design** | Works well on tablets and phones (primary kid devices) |
@@ -114,7 +136,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 ---
 
-## 7. UI / Visual Design
+## 8. UI / Visual Design
 
 ### Style
 - **Colorful and playful** — rounded corners, large tap targets (minimum 48px), bold fonts.
@@ -140,7 +162,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 ---
 
-## 8. Technical Architecture
+## 9. Technical Architecture
 
 ```
 digits-kids/
@@ -179,21 +201,25 @@ digits-kids/
 
 ---
 
-## 9. Game State Model
+## 10. Game State Model
 
 ```typescript
 type Difficulty = 'easy' | 'medium' | 'hard';
 type Operation = '+' | '-' | '*' | '/';
+type GameMode = 'classic' | 'timer';
 
 interface GameState {
   difficulty: Difficulty;
+  mode: GameMode;
   target: number;
   numbers: number[];              // current available numbers
   initialNumbers: number[];       // for restart
   selectedIndices: number[];      // 0, 1, or 2 selected number indices
   selectedOperation: Operation | null;
   history: HistoryEntry[];        // for undo
-  status: 'playing' | 'won';
+  status: 'playing' | 'won' | 'timeout';
+  timeRemaining: number | null;   // in seconds, null for classic mode
+  timerStartedAt: number | null;  // timestamp when timer started
 }
 
 interface HistoryEntry {
@@ -207,7 +233,7 @@ interface HistoryEntry {
 
 ---
 
-## 10. Puzzle Generation Algorithm
+## 11. Puzzle Generation Algorithm
 
 1. **Pick N random starting numbers** according to difficulty constraints.
 2. **Simulate a random sequence of valid operations** on those numbers to produce an intermediate set.
@@ -224,7 +250,7 @@ The second approach is cleaner and more predictable. We'll use this one.
 
 ---
 
-## 11. Validation Rules
+## 12. Validation Rules
 
 | Operation | Valid When |
 |-----------|-----------|
@@ -235,9 +261,13 @@ The second approach is cleaner and more predictable. We'll use this one.
 
 ---
 
-## 12. Acceptance Criteria
+## 13. Acceptance Criteria
 
+- [ ] Player can select game mode (Classic or Timer).
+- [ ] Timer mode shows a 60-second countdown timer.
+- [ ] Timer mode displays timeout overlay when time expires.
 - [ ] Player can select difficulty (Easy, Medium, Hard) and start a new puzzle.
+- [ ] Hard mode displays numbers in a 2×3 grid layout.
 - [ ] Puzzle always has at least one valid solution.
 - [ ] Player can select two numbers and an operation to combine them.
 - [ ] Invalid operations (negative result, non-integer division) show clear feedback.
@@ -251,9 +281,11 @@ The second approach is cleaner and more predictable. We'll use this one.
 
 ---
 
-## 13. Resolved Design Decisions
+## 14. Resolved Design Decisions
 
 1. **Auto-confirm** — operation applies automatically when both numbers + operation are selected (no "Go" button).
 2. **Confetti in MVP** — celebration animations are included in the initial release.
 3. **Default colorful gradient theme** — no specific theme, use the playful gradient design described above.
 4. **Vite** — used for dev server and bundling.
+5. **Timer duration** — 60 seconds for Timer mode provides appropriate challenge for kids.
+6. **Hard mode grid layout** — 2×3 grid layout improves visual organization for 6 numbers.
