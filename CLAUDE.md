@@ -53,24 +53,34 @@ git worktree add ../digits-kids-timer-fix -b fix/timer-countdown
 **MANDATORY: Run build and tests before every commit:**
 
 ```bash
+# Run all tests (recommended before commit)
+npm test -- --run
+
 # Build the application
 npm run build
 
-# Run type checking (TypeScript compilation)
-npm run build  # This runs tsc && vite build
-
 # Preview the production build locally
 npm run preview
+
+# Run tests in watch mode during development
+npm test
+
+# Run tests with UI (helpful for debugging)
+npm run test:ui
+
+# Run tests with coverage report
+npm run test:coverage
 ```
 
 **Pre-commit checklist:**
+- [ ] All tests pass (`npm test -- --run`)
 - [ ] TypeScript compiles without errors
 - [ ] Vite build completes successfully
 - [ ] No console errors in development mode
 - [ ] Game functions correctly in browser preview
-- [ ] All game modes (Classic/Timer) work
+- [ ] All game modes (Classic/Timer/Challenge) work
 - [ ] All difficulty levels (Easy/Medium/Hard) work
-- [ ] Key interactions tested (number selection, operations, undo, restart)
+- [ ] Key interactions tested (number selection, operations, undo, restart, skip)
 
 ## Project Structure
 
@@ -82,20 +92,25 @@ digits-kids/
 │   ├── game/
 │   │   ├── types.ts        # Type definitions (GameState, Difficulty, etc.)
 │   │   ├── engine.ts       # Core game logic (apply operation, validate, check win)
-│   │   └── generator.ts    # Puzzle generation (reverse-solve approach)
+│   │   ├── engine.test.ts  # Tests for game engine
+│   │   ├── generator.ts    # Puzzle generation (reverse-solve approach)
+│   │   └── generator.test.ts # Tests for puzzle generator
 │   ├── ui/
 │   │   ├── renderer.ts     # DOM rendering and updates
 │   │   ├── animations.ts   # Confetti, shake, highlight animations
 │   │   └── events.ts       # Event handlers (click, touch)
 │   └── utils/
-│       └── random.ts       # Seeded random helpers
+│       ├── random.ts       # Seeded random helpers
+│       └── random.test.ts  # Tests for random utilities
 ├── styles/
 │   └── main.css            # All styles
 ├── PRD.md                  # Product Requirements Document (KEEP UPDATED)
 ├── README.md               # User-facing documentation (KEEP UPDATED)
+├── CLAUDE.md               # Development guidelines (this file)
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
+├── vitest.config.ts        # Test configuration
 └── dist/                   # Built output for GitHub Pages
 ```
 
@@ -211,9 +226,42 @@ base: '/digits-kids/'
 
 ## Testing Strategy
 
-Currently, the project has no automated test suite. Manual testing is required:
+The project uses **Vitest** for automated testing with **jsdom** for DOM environment simulation.
+
+### Automated Tests
+
+Run automated tests before every commit:
+
+```bash
+# Run all tests once
+npm test -- --run
+
+# Run tests in watch mode (during development)
+npm test
+
+# Run with UI for debugging
+npm run test:ui
+
+# Run with coverage report
+npm run test:coverage
+```
+
+**Test Coverage:**
+- `src/game/engine.test.ts` - Core game logic (operations, validation, move execution, undo, restart)
+- `src/game/generator.test.ts` - Puzzle generation (solvability, difficulty constraints)
+- `src/utils/random.test.ts` - Random number utilities (seeded random, range validation)
+
+**Testing Guidelines:**
+- All game logic modules should have corresponding `.test.ts` files
+- Tests use Vitest with jsdom environment
+- Use `describe` blocks to group related tests
+- Use descriptive test names that explain the expected behavior
+- Test both success and failure cases
+- Verify edge cases (division by zero, subtraction resulting in negatives, etc.)
 
 ### Manual Test Checklist
+
+In addition to automated tests, perform manual testing for UI/UX:
 
 **Basic Gameplay:**
 - [ ] Can select two numbers
@@ -248,27 +296,32 @@ Currently, the project has no automated test suite. Manual testing is required:
 ### Add a new feature
 1. Create worktree: `git worktree add ../digits-kids-<feature> -b feature/<name>`
 2. Implement feature following existing patterns
-3. Update PRD.md with new specifications
-4. Update README.md with user-facing changes
-5. Build and test: `npm run build && npm run preview`
-6. Commit, push, and create PR
+3. Add tests for new functionality (if applicable)
+4. Update PRD.md with new specifications
+5. Update README.md with user-facing changes
+6. Run tests: `npm test -- --run`
+7. Build and test: `npm run build && npm run preview`
+8. Commit, push, and create PR
 
 ### Fix a bug
 1. Create worktree: `git worktree add ../digits-kids-<bugfix> -b fix/<name>`
 2. Identify and fix the issue
-3. Test the fix in all game modes and difficulties
-4. Build and verify: `npm run build && npm run preview`
-5. Update docs if the bug revealed missing specification
-6. Commit, push, and create PR
+3. Add/update tests to cover the bug
+4. Run tests: `npm test -- --run`
+5. Test the fix in all game modes and difficulties
+6. Build and verify: `npm run build && npm run preview`
+7. Update docs if the bug revealed missing specification
+8. Commit, push, and create PR
 
 ### Refactor code
 1. Create worktree: `git worktree add ../digits-kids-refactor -b refactor/<name>`
 2. Refactor while maintaining existing behavior
-3. Ensure no TypeScript errors
-4. Test all game functionality
-5. Update PRD.md if architecture changed
-6. Build and test: `npm run build && npm run preview`
-7. Commit, push, and create PR
+3. Ensure all tests still pass: `npm test -- --run`
+4. Ensure no TypeScript errors
+5. Test all game functionality
+6. Update PRD.md if architecture changed
+7. Build and test: `npm run build && npm run preview`
+8. Commit, push, and create PR
 
 ### Update styling
 1. Create worktree: `git worktree add ../digits-kids-styling -b style/<name>`
@@ -286,12 +339,17 @@ Currently, the project has no automated test suite. Manual testing is required:
 **Development:**
 - `typescript` - Type checking and compilation
 - `vite` - Dev server and bundler
+- `vitest` - Fast unit test framework
+- `@vitest/ui` - Interactive test UI
+- `jsdom` - DOM environment for testing
 
 **Keep dependencies minimal.** This is intentional for:
 - Fast load times
 - Offline capability
 - Simple deployment
 - Easy maintenance
+
+All test dependencies are dev-only and don't affect the production bundle.
 
 ## Security Considerations
 
@@ -341,12 +399,14 @@ If implementing any of these, update PRD.md first with specifications.
 
 - [ ] Create new worktree and branch
 - [ ] Make changes following project patterns
+- [ ] Add/update tests if changing game logic (`npm test -- --run`)
 - [ ] Update PRD.md if specifications changed
 - [ ] Update README.md if user-facing features changed
+- [ ] Run `npm test -- --run` - all tests must pass
 - [ ] Run `npm run build` successfully
 - [ ] Test in `npm run preview`
 - [ ] Verify game works in browser
-- [ ] Test both game modes (Classic/Timer)
+- [ ] Test all game modes (Classic/Timer/Challenge)
 - [ ] Test all difficulty levels
 - [ ] Commit with descriptive message
 - [ ] Push and create PR
