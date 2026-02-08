@@ -41,6 +41,7 @@ A kid-friendly math puzzle game where players combine numbers using arithmetic o
 - Click "Skip" to move to the next puzzle if you're stuck
 - When you solve a puzzle, a new one appears automatically
 - Your score shows solved and skipped puzzles at the end!
+- Share your results with friends using the "Share" button
 
 ## Development
 

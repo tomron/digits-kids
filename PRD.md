@@ -43,6 +43,7 @@ The player can switch between modes at any time. The default is **Classic**.
   - Total puzzles solved
   - Total puzzles skipped
   - Final score display
+  - **Share button** to share results via Web Share API (mobile) or clipboard (desktop)
 
 ---
 
@@ -135,6 +136,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 | **Skip button** | In Challenge mode, skip the current puzzle (counts as skipped) |
 | **Challenge stats** | Track and display solved and skipped puzzles during Challenge mode |
 | **Challenge results** | Show final score (solved/skipped) when Challenge mode timer expires |
+| **Share results** | Share Challenge mode results via Web Share API (mobile) or clipboard (desktop) with Wordle-style text |
 | **Puzzle board** | Display target number and available number tiles |
 | **Hard mode grid layout** | 2×3 grid layout for 6 numbers in Hard difficulty |
 | **Operation buttons** | +, −, ×, ÷ (filtered by difficulty) |
@@ -154,7 +156,7 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 ### Out of Scope (potential future)
 
-- Daily puzzle mode / sharing results
+- Daily puzzle mode
 - Hints system
 - Sound effects
 - Score persistence / streak tracking
