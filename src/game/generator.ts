@@ -2,6 +2,11 @@ import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState,
 import { randomInt, pickRandom, shuffle } from '../utils/random';
 import { applyOperation } from './engine';
 
+interface SearchNode {
+  numbers: number[];
+  path: SolutionStep[];
+}
+
 /**
  * Generate a puzzle using forward simulation:
  * 1. Generate random starting numbers
@@ -33,7 +38,6 @@ function tryGeneratePuzzle(
   // Simulate a random sequence of operations to find a target
   const simNumbers = [...numbers];
   const steps = Math.min(2, simNumbers.length - 1); // Use 2 operations to create the target
-  const solutionSteps: SolutionStep[] = [];
 
   for (let step = 0; step < steps; step++) {
     if (simNumbers.length < 2) break;
@@ -43,14 +47,6 @@ function tryGeneratePuzzle(
 
     const move = pickRandom(validMoves);
     const result = applyOperation(move.op, move.a, move.b)!;
-
-    // Track this step in the solution
-    solutionSteps.push({
-      operand1: move.a,
-      operand2: move.b,
-      operation: move.op,
-      result,
-    });
 
     // Remove used numbers and add result
     const idxA = simNumbers.indexOf(move.a);
@@ -73,6 +69,9 @@ function tryGeneratePuzzle(
     return null;
   }
 
+  // Find the shortest solution to reach the target
+  const solution = findShortestSolution(numbers, target, config.operations);
+
   return {
     difficulty,
     mode,
@@ -88,7 +87,7 @@ function tryGeneratePuzzle(
     timeRemaining: mode === 'timer' || mode === 'challenge' ? 60 : null,
     timerStartedAt: mode === 'timer' || mode === 'challenge' ? Date.now() : null,
     challengeStats: mode === 'challenge' ? { puzzlesSolved: 0, puzzlesSkipped: 0 } : null,
-    solution: solutionSteps,
+    solution,
   };
 }
 
@@ -143,6 +142,71 @@ function findValidMoves(numbers: number[], allowedOps: Operation[]): ValidMove[]
 }
 
 /**
+ * Find the shortest solution to reach the target using BFS
+ */
+function findShortestSolution(numbers: number[], target: number, allowedOps: Operation[]): SolutionStep[] {
+  // If target is already in numbers, no solution needed
+  if (numbers.includes(target)) {
+    return [];
+  }
+
+  const queue: SearchNode[] = [{ numbers: [...numbers], path: [] }];
+  const visited = new Set<string>();
+  visited.add(sortedKey(numbers));
+
+  while (queue.length > 0) {
+    const node = queue.shift()!;
+
+    // Try all valid moves from current state
+    const validMoves = findValidMoves(node.numbers, allowedOps);
+
+    for (const move of validMoves) {
+      const result = applyOperation(move.op, move.a, move.b)!;
+
+      // Properly remove the two numbers and add result
+      const tempNumbers = [...node.numbers];
+      const idxA = tempNumbers.indexOf(move.a);
+      tempNumbers.splice(idxA, 1);
+      const idxB = tempNumbers.indexOf(move.b);
+      tempNumbers.splice(idxB, 1);
+      tempNumbers.push(result);
+
+      const newPath = [
+        ...node.path,
+        {
+          operand1: move.a,
+          operand2: move.b,
+          operation: move.op,
+          result,
+        },
+      ];
+
+      // Check if we reached the target
+      if (result === target) {
+        return newPath;
+      }
+
+      // Add to queue if not visited
+      const key = sortedKey(tempNumbers);
+      if (!visited.has(key)) {
+        visited.add(key);
+        queue.push({ numbers: tempNumbers, path: newPath });
+      }
+    }
+  }
+
+  // No solution found (shouldn't happen with our generation method)
+  return [];
+}
+
+/**
+ * Create a sorted string key for a numbers array to detect visited states
+ */
+function sortedKey(numbers: number[]): string {
+  return [...numbers].sort((a, b) => a - b).join(',');
+}
+
+/**
  * Generate a new puzzle in challenge mode, preserving timer and stats
  */
 export function generateChallengePuzzle(currentState: GameState): GameState {
@@ -169,7 +233,6 @@ function tryGenerateChallengePuzzle(
   // Simulate a random sequence of operations to find a target
   const simNumbers = [...numbers];
   const steps = Math.min(2, simNumbers.length - 1);
-  const solutionSteps: SolutionStep[] = [];
 
   for (let step = 0; step < steps; step++) {
     if (simNumbers.length < 2) break;
@@ -179,14 +242,6 @@ function tryGenerateChallengePuzzle(
 
     const move = pickRandom(validMoves);
     const result = applyOperation(move.op, move.a, move.b)!;
-
-    // Track this step in the solution
-    solutionSteps.push({
-      operand1: move.a,
-      operand2: move.b,
-      operation: move.op,
-      result,
-    });
 
     const idxA = simNumbers.indexOf(move.a);
     simNumbers.splice(idxA, 1);
@@ -205,6 +260,9 @@ function tryGenerateChallengePuzzle(
     return null;
   }
 
+  // Find the shortest solution to reach the target
+  const solution = findShortestSolution(numbers, target, config.operations);
+
   return {
     ...currentState,
     target,
@@ -216,7 +274,7 @@ function tryGenerateChallengePuzzle(
     status: 'playing',
     moveCount: 0,
     message: null,
-    solution: solutionSteps,
+    solution,
     // Preserve timer and stats
   };
 }
