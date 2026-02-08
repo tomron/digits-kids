@@ -1,0 +1,453 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #e0f0ff 0%, #f0e6ff 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  color: #2d3748;
+}
+
+#app {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 16px 0;
+}
+
+/* Header */
+.game-header h1 {
+  font-size: 28px;
+  font-weight: 800;
+  text-align: center;
+  color: #4a3080;
+}
+
+/* Mode Selector */
+.mode-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-btn {
+  padding: 8px 20px;
+  border: 2px solid #c4b5fd;
+  border-radius: 20px;
+  background: white;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b5aad;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-btn:hover {
+  background: #f3f0ff;
+}
+
+.mode-btn.active {
+  background: #7c5cbf;
+  color: white;
+  border-color: #7c5cbf;
+}
+
+/* Difficulty Selector */
+.difficulty-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.difficulty-btn {
+  padding: 8px 20px;
+  border: 2px solid #c4b5fd;
+  border-radius: 20px;
+  background: white;
+  font-size: 16px;
+  font-weight: 600;
+  color: #6b5aad;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.difficulty-btn:hover {
+  background: #f3f0ff;
+}
+
+.difficulty-btn.active {
+  background: #7c5cbf;
+  color: white;
+  border-color: #7c5cbf;
+}
+
+/* Target */
+.target-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.target-label {
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #8b7ab8;
+}
+
+.target-number {
+  font-size: 56px;
+  font-weight: 800;
+  color: #4a3080;
+  text-shadow: 0 2px 8px rgba(124, 92, 191, 0.2);
+}
+
+/* Timer */
+.timer-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 20px;
+  background: rgba(124, 92, 191, 0.1);
+  border-radius: 16px;
+  border: 2px solid #c4b5fd;
+}
+
+.timer-text {
+  font-size: 24px;
+  font-weight: 700;
+  color: #4a3080;
+  font-variant-numeric: tabular-nums;
+  min-width: 48px;
+  text-align: center;
+}
+
+/* Number Tiles */
+.number-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.number-tiles.hard-mode {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 12px;
+  max-width: 280px;
+}
+
+.number-tile {
+  width: 72px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  border: 3px solid #d4c8ef;
+  border-radius: 16px;
+  background: white;
+  color: #4a3080;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.number-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.number-tile:active {
+  transform: scale(0.95);
+}
+
+.number-tile.selected {
+  border-color: #f59e0b;
+  background: #fef3c7;
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.3);
+}
+
+.number-tile.selected.first {
+  border-color: #f59e0b;
+  background: #fef3c7;
+}
+
+.number-tile.selected.second {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Operation Buttons */
+.operation-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.op-btn {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+.op-btn:active {
+  transform: scale(0.9);
+}
+
+.op-add {
+  background: #dcfce7;
+  color: #16a34a;
+  border-color: #86efac;
+}
+.op-sub {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+.op-mul {
+  background: #dbeafe;
+  color: #2563eb;
+  border-color: #93c5fd;
+}
+.op-div {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fcd34d;
+}
+
+.op-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.op-btn.selected {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 3px currentColor;
+}
+
+/* Move Info */
+.move-info {
+  font-size: 18px;
+  font-weight: 600;
+  color: #6b5aad;
+  min-height: 28px;
+  text-align: center;
+}
+
+.preview {
+  font-size: 22px;
+  color: #4a3080;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 10px 20px;
+  border: 2px solid #d4c8ef;
+  border-radius: 12px;
+  background: white;
+  font-size: 15px;
+  font-weight: 600;
+  color: #6b5aad;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.action-btn:hover {
+  background: #f3f0ff;
+  border-color: #b0a0d4;
+}
+
+.action-btn:active {
+  transform: scale(0.95);
+}
+
+/* Game Message */
+.game-message {
+  font-size: 16px;
+  font-weight: 600;
+  color: #7c5cbf;
+  text-align: center;
+  padding: 8px 16px;
+  background: rgba(124, 92, 191, 0.1);
+  border-radius: 10px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* Win Overlay */
+.win-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.win-content {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.win-stars {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.win-content h2 {
+  font-size: 32px;
+  color: #4a3080;
+  margin-bottom: 8px;
+}
+
+.win-content p {
+  font-size: 18px;
+  color: #6b5aad;
+  margin-bottom: 24px;
+}
+
+.win-new-puzzle {
+  font-size: 18px !important;
+  padding: 12px 32px !important;
+  background: #7c5cbf !important;
+  color: white !important;
+  border-color: #7c5cbf !important;
+}
+
+.win-new-puzzle:hover {
+  background: #6b4eab !important;
+}
+
+/* Confetti Canvas */
+.confetti-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 200;
+}
+
+/* Timeout Overlay */
+.timeout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.3s ease;
+}
+
+.timeout-content {
+  background: white;
+  border-radius: 24px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.timeout-icon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.timeout-content h2 {
+  font-size: 32px;
+  color: #4a3080;
+  margin-bottom: 8px;
+}
+
+.timeout-content p {
+  font-size: 18px;
+  color: #6b5aad;
+  margin-bottom: 24px;
+}
+
+.timeout-new-puzzle {
+  font-size: 18px !important;
+  padding: 12px 32px !important;
+  background: #7c5cbf !important;
+  color: white !important;
+  border-color: #7c5cbf !important;
+}
+
+.timeout-new-puzzle:hover {
+  background: #6b4eab !important;
+}
+
+/* Responsive */
+@media (max-width: 360px) {
+  .number-tile {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .op-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
+  }
+
+  .target-number {
+    font-size: 44px;
+  }
+}
