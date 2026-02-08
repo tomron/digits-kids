@@ -632,6 +632,109 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 480px) {
+  body {
+    padding: 8px;
+  }
+
+  #app {
+    gap: 20px;
+    padding: 8px 0;
+  }
+
+  .game-header h1 {
+    font-size: 24px;
+  }
+
+  .mode-selector,
+  .difficulty-selector {
+    gap: 6px;
+  }
+
+  .mode-btn,
+  .difficulty-btn {
+    padding: 6px 16px;
+    font-size: 14px;
+  }
+
+  .target-number {
+    font-size: 48px;
+  }
+
+  .number-tiles.hard-mode {
+    max-width: 240px;
+  }
+
+  .action-buttons {
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
+  .win-content,
+  .timeout-content,
+  .challenge-results-content {
+    padding: 32px 24px;
+    margin: 16px;
+  }
+
+  .win-content h2,
+  .timeout-content h2 {
+    font-size: 28px;
+  }
+
+  .challenge-results-content {
+    min-width: auto;
+  }
+
+  .challenge-results-content h2 {
+    font-size: 24px;
+  }
+
+  .stat-line {
+    font-size: 16px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .challenge-buttons {
+    flex-direction: column;
+  }
+
+  .challenge-play-again,
+  .challenge-share,
+  .win-new-puzzle,
+  .timeout-new-puzzle {
+    width: 100%;
+  }
+
+  .explanation-content {
+    margin: 16px;
+    padding: 24px 20px;
+  }
+
+  .explanation-content h2 {
+    font-size: 22px;
+  }
+
+  .explanation-intro {
+    font-size: 15px;
+  }
+
+  .explanation-step {
+    font-size: 15px;
+  }
+
+  .step-text {
+    font-size: 16px;
+  }
+}
+
 @media (max-width: 360px) {
   .number-tile {
     width: 60px;
@@ -646,18 +749,74 @@ body {
   }
 
   .target-number {
-    font-size: 44px;
+    font-size: 40px;
+  }
+
+  .timer-text {
+    font-size: 20px;
+    min-width: 40px;
+  }
+
+  .move-info {
+    font-size: 16px;
+  }
+
+  .preview {
+    font-size: 18px;
+  }
+
+  .mode-btn,
+  .difficulty-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .action-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
+  .number-tiles.hard-mode {
+    max-width: 200px;
+    gap: 8px;
   }
 
   .explanation-content {
-    padding: 24px 28px;
+    padding: 20px 16px;
   }
 
   .explanation-content h2 {
-    font-size: 22px;
+    font-size: 20px;
+  }
+
+  .step-number {
+    min-width: 50px;
   }
 
   .step-text {
-    font-size: 16px;
+    font-size: 14px;
+  }
+}
+
+/* Landscape phone optimization */
+@media (max-height: 600px) and (orientation: landscape) {
+  #app {
+    gap: 12px;
+  }
+
+  .target-number {
+    font-size: 40px;
+  }
+
+  .number-tile {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+
+  .op-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 24px;
   }
 }
