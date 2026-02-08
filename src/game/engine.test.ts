@@ -201,6 +201,32 @@ describe('executeMove', () => {
     expect(entry.operation).toBe('*');
     expect(entry.result).toBe(50);
   });
+
+  it('should sort numbers in ascending order after operation', () => {
+    const state = createTestState({
+      selectedIndices: [0, 3], // Select 5 and 20
+      selectedOperation: '+',
+      numbers: [5, 10, 15, 20],
+    });
+    const newState = executeMove(state);
+
+    // Result is 25, remaining numbers are 10, 15
+    // After sorting: [10, 15, 25]
+    expect(newState.numbers).toEqual([10, 15, 25]);
+  });
+
+  it('should maintain sorted order with small results', () => {
+    const state = createTestState({
+      selectedIndices: [2, 3], // Select 15 and 20
+      selectedOperation: '-',
+      numbers: [5, 10, 15, 20],
+    });
+    const newState = executeMove(state);
+
+    // Result is 5 (20-15), remaining numbers are 5, 10
+    // After sorting: [5, 5, 10]
+    expect(newState.numbers).toEqual([5, 5, 10]);
+  });
 });
 
 describe('undoMove', () => {
