@@ -123,6 +123,10 @@ function bindEvents(): void {
     update(generatePuzzle(state.difficulty, state.mode));
   });
 
+  document.getElementById('challenge-copy')?.addEventListener('click', async () => {
+    await handleCopy();
+  });
+
   document.getElementById('challenge-share')?.addEventListener('click', async () => {
     await handleShare();
   });
@@ -160,57 +164,74 @@ function closeExplanation(): void {
   }
 }
 
-async function handleShare(): Promise<void> {
+function getShareText(): string | null {
   const overlay = document.querySelector('.challenge-results-overlay') as HTMLElement;
-  if (!overlay) return;
+  if (!overlay) return null;
 
   const difficulty = overlay.dataset.difficulty as Difficulty;
   const solvedElement = overlay.querySelector('.stat-value');
   const skippedElement = overlay.querySelectorAll('.stat-value')[1];
 
-  if (!solvedElement || !skippedElement) return;
+  if (!solvedElement || !skippedElement) return null;
 
   const solved = solvedElement.textContent || '0';
   const skipped = skippedElement.textContent || '0';
   const difficultyLabel = DIFFICULTY_CONFIGS[difficulty].label;
 
-  const shareText = `Digits for Kids Challenge (${difficultyLabel})
+  return `Digits for Kids Challenge (${difficultyLabel})
 ✅ Solved: ${solved}
 ⏭️ Skipped: ${skipped}
 
 Play at https://tomron.github.io/digits-kids/`;
+}
 
-  const shareButton = document.getElementById('challenge-share');
-  if (!shareButton) return;
+async function handleCopy(): Promise<void> {
+  const shareText = getShareText();
+  if (!shareText) return;
 
-  // Try Web Share API first (mobile)
+  const copyButton = document.getElementById('challenge-copy');
+  if (!copyButton) return;
+
+  try {
+    await navigator.clipboard.writeText(shareText);
+    const originalText = copyButton.textContent;
+    copyButton.textContent = 'Copied!';
+    copyButton.classList.add('copied');
+
+    setTimeout(() => {
+      copyButton.textContent = originalText;
+      copyButton.classList.remove('copied');
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+    // Show error feedback
+    const originalText = copyButton.textContent;
+    copyButton.textContent = 'Failed';
+    setTimeout(() => {
+      copyButton.textContent = originalText;
+    }, 2000);
+  }
+}
+
+async function handleShare(): Promise<void> {
+  const shareText = getShareText();
+  if (!shareText) return;
+
+  // Try Web Share API (primarily for mobile)
   if (navigator.share) {
     try {
       await navigator.share({
         text: shareText,
       });
-      return;
     } catch (err) {
-      // User cancelled or share failed, fall through to clipboard
-      if ((err as Error).name === 'AbortError') {
-        return; // User cancelled, don't show "Copied!"
+      // User cancelled, do nothing
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Share failed:', err);
       }
     }
-  }
-
-  // Fallback to clipboard
-  try {
-    await navigator.clipboard.writeText(shareText);
-    const originalText = shareButton.textContent;
-    shareButton.textContent = 'Copied!';
-    shareButton.classList.add('copied');
-
-    setTimeout(() => {
-      shareButton.textContent = originalText;
-      shareButton.classList.remove('copied');
-    }, 2000);
-  } catch (err) {
-    console.error('Failed to copy to clipboard:', err);
+  } else {
+    // Fallback: if Web Share API not available, copy to clipboard
+    await handleCopy();
   }
 }
 
