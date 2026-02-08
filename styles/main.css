@@ -502,6 +502,12 @@ body {
   font-size: 24px;
 }
 
+.challenge-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
 .challenge-play-again {
   font-size: 18px !important;
   padding: 12px 32px !important;
@@ -512,6 +518,25 @@ body {
 
 .challenge-play-again:hover {
   background: #6b4eab !important;
+}
+
+.challenge-share {
+  font-size: 18px !important;
+  padding: 12px 32px !important;
+  background: white !important;
+  color: #7c5cbf !important;
+  border-color: #7c5cbf !important;
+  border-width: 2px !important;
+}
+
+.challenge-share:hover {
+  background: #f3f0ff !important;
+}
+
+.challenge-share.copied {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+  border-color: #16a34a !important;
 }
 
 /* Responsive */

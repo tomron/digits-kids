@@ -1,4 +1,4 @@
-import { GameState, Difficulty, Operation, GameMode } from '../game/types';
+import { GameState, Difficulty, Operation, GameMode, DIFFICULTY_CONFIGS } from '../game/types';
 import { executeMove, undoMove, restartPuzzle } from '../game/engine';
 import { generatePuzzle, generateChallengePuzzle } from '../game/generator';
 import { render } from './renderer';
@@ -122,6 +122,64 @@ function bindEvents(): void {
   document.getElementById('challenge-play-again')?.addEventListener('click', () => {
     update(generatePuzzle(state.difficulty, state.mode));
   });
+
+  document.getElementById('challenge-share')?.addEventListener('click', async () => {
+    await handleShare();
+  });
+}
+
+async function handleShare(): Promise<void> {
+  const overlay = document.querySelector('.challenge-results-overlay') as HTMLElement;
+  if (!overlay) return;
+
+  const difficulty = overlay.dataset.difficulty as Difficulty;
+  const solvedElement = overlay.querySelector('.stat-value');
+  const skippedElement = overlay.querySelectorAll('.stat-value')[1];
+
+  if (!solvedElement || !skippedElement) return;
+
+  const solved = solvedElement.textContent || '0';
+  const skipped = skippedElement.textContent || '0';
+  const difficultyLabel = DIFFICULTY_CONFIGS[difficulty].label;
+
+  const shareText = `Digits for Kids Challenge (${difficultyLabel})
+✅ Solved: ${solved}
+⏭️ Skipped: ${skipped}
+
+Play at https://tomron.github.io/digits-kids/`;
+
+  const shareButton = document.getElementById('challenge-share');
+  if (!shareButton) return;
+
+  // Try Web Share API first (mobile)
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        text: shareText,
+      });
+      return;
+    } catch (err) {
+      // User cancelled or share failed, fall through to clipboard
+      if ((err as Error).name === 'AbortError') {
+        return; // User cancelled, don't show "Copied!"
+      }
+    }
+  }
+
+  // Fallback to clipboard
+  try {
+    await navigator.clipboard.writeText(shareText);
+    const originalText = shareButton.textContent;
+    shareButton.textContent = 'Copied!';
+    shareButton.classList.add('copied');
+
+    setTimeout(() => {
+      shareButton.textContent = originalText;
+      shareButton.classList.remove('copied');
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy to clipboard:', err);
+  }
 }
 
 function startTimer(): void {

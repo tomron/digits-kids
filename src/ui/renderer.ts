@@ -25,7 +25,7 @@ export function render(state: GameState, container: HTMLElement): void {
 
   if (state.status === 'timeout') {
     if (state.mode === 'challenge' && state.challengeStats) {
-      container.appendChild(createChallengeResultsOverlay(state.challengeStats));
+      container.appendChild(createChallengeResultsOverlay(state.challengeStats, state.difficulty));
     } else {
       container.appendChild(createTimeoutOverlay());
     }
@@ -278,9 +278,10 @@ function createTimeoutOverlay(): HTMLElement {
   return overlay;
 }
 
-function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSkipped: number }): HTMLElement {
+function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSkipped: number }, difficulty: Difficulty): HTMLElement {
   const overlay = document.createElement('div');
   overlay.className = 'challenge-results-overlay';
+  overlay.dataset.difficulty = difficulty;
 
   const content = document.createElement('div');
   content.className = 'challenge-results-content';
@@ -322,15 +323,26 @@ function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSk
   statsBox.appendChild(solvedLine);
   statsBox.appendChild(skippedLine);
 
-  const button = document.createElement('button');
-  button.className = 'action-btn challenge-play-again';
-  button.id = 'challenge-play-again';
-  button.textContent = 'Play Again';
+  const buttonWrapper = document.createElement('div');
+  buttonWrapper.className = 'challenge-buttons';
+
+  const playAgainButton = document.createElement('button');
+  playAgainButton.className = 'action-btn challenge-play-again';
+  playAgainButton.id = 'challenge-play-again';
+  playAgainButton.textContent = 'Play Again';
+
+  const shareButton = document.createElement('button');
+  shareButton.className = 'action-btn challenge-share';
+  shareButton.id = 'challenge-share';
+  shareButton.textContent = 'Share';
+
+  buttonWrapper.appendChild(playAgainButton);
+  buttonWrapper.appendChild(shareButton);
 
   content.appendChild(icon);
   content.appendChild(heading);
   content.appendChild(statsBox);
-  content.appendChild(button);
+  content.appendChild(buttonWrapper);
   overlay.appendChild(content);
 
   return overlay;
