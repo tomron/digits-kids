@@ -1,5 +1,5 @@
 import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState, GameMode, SolutionStep } from './types';
-import { randomInt, pickRandom, shuffle } from '../utils/random';
+import { randomInt, pickRandom } from '../utils/random';
 import { applyOperation } from './engine';
 
 interface SearchNode {
@@ -76,7 +76,7 @@ function tryGeneratePuzzle(
     difficulty,
     mode,
     target,
-    numbers: shuffle([...numbers]),
+    numbers: [...numbers].sort((a, b) => a - b),
     initialNumbers: [...numbers],
     selectedIndices: [],
     selectedOperation: null,
@@ -266,7 +266,7 @@ function tryGenerateChallengePuzzle(
   return {
     ...currentState,
     target,
-    numbers: shuffle([...numbers]),
+    numbers: [...numbers].sort((a, b) => a - b),
     initialNumbers: [...numbers],
     selectedIndices: [],
     selectedOperation: null,
