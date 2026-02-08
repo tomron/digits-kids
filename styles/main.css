@@ -520,6 +520,25 @@ body {
   background: #6b4eab !important;
 }
 
+.challenge-copy {
+  font-size: 18px !important;
+  padding: 12px 32px !important;
+  background: white !important;
+  color: #7c5cbf !important;
+  border-color: #7c5cbf !important;
+  border-width: 2px !important;
+}
+
+.challenge-copy:hover {
+  background: #f3f0ff !important;
+}
+
+.challenge-copy.copied {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+  border-color: #16a34a !important;
+}
+
 .challenge-share {
   font-size: 18px !important;
   padding: 12px 32px !important;

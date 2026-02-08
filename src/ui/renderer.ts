@@ -333,12 +333,18 @@ function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSk
   playAgainButton.id = 'challenge-play-again';
   playAgainButton.textContent = 'Play Again';
 
+  const copyButton = document.createElement('button');
+  copyButton.className = 'action-btn challenge-copy';
+  copyButton.id = 'challenge-copy';
+  copyButton.textContent = 'Copy';
+
   const shareButton = document.createElement('button');
   shareButton.className = 'action-btn challenge-share';
   shareButton.id = 'challenge-share';
   shareButton.textContent = 'Share';
 
   buttonWrapper.appendChild(playAgainButton);
+  buttonWrapper.appendChild(copyButton);
   buttonWrapper.appendChild(shareButton);
 
   content.appendChild(icon);
