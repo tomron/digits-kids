@@ -171,14 +171,36 @@ Tests run automatically on every push and pull request via GitHub Actions.
 
 **Workflow**: `.github/workflows/test.yml`
 
-The CI pipeline:
+### Automatic Triggers
+
+The CI pipeline runs automatically on:
+- **Every push** to any branch
+- **Pull requests** to the main branch
+
+Pipeline steps:
 1. Checks out the code
-2. Sets up Node.js 20
+2. Sets up Node.js 20 with npm caching
 3. Installs dependencies with `npm ci`
 4. Runs all tests with `npm run test:run`
 5. Verifies the build with `npm run build`
 
 **Status**: Check the Actions tab on GitHub or PR status checks.
+
+### Manual Triggers
+
+You can manually run tests on any branch:
+
+1. Go to the **Actions** tab on GitHub
+2. Select the **Test** workflow from the left sidebar
+3. Click the **Run workflow** dropdown button (top right)
+4. Enter the branch name you want to test (default: `main`)
+5. Click **Run workflow**
+
+This is useful for:
+- Testing experimental branches before creating a PR
+- Re-running tests without pushing new commits
+- Testing specific branches on demand
+- Verifying fixes before merging
 
 ## Future Testing Improvements
 
