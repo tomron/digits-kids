@@ -165,14 +165,29 @@ describe('myFunction', () => {
 - **Test Execution Time**: ~650ms
 - **Code Coverage**: Not yet measured (run `npm run test:coverage`)
 
+## Continuous Integration
+
+Tests run automatically on every push and pull request via GitHub Actions.
+
+**Workflow**: `.github/workflows/test.yml`
+
+The CI pipeline:
+1. Checks out the code
+2. Sets up Node.js 20
+3. Installs dependencies with `npm ci`
+4. Runs all tests with `npm run test:run`
+5. Verifies the build with `npm run build`
+
+**Status**: Check the Actions tab on GitHub or PR status checks.
+
 ## Future Testing Improvements
 
 1. **Add integration tests** for complete game flows
 2. **Add UI tests** for renderer and animations
 3. **Add event handler tests** for user interactions
 4. **Set up coverage thresholds** to maintain quality
-5. **Add CI/CD** to run tests automatically on PRs
-6. **Performance benchmarks** for puzzle generation
+5. **Performance benchmarks** for puzzle generation
+6. **Add test coverage reporting** in CI
 
 ## Dependencies
 
