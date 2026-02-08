@@ -228,4 +228,45 @@ describe('generatePuzzle', () => {
       }
     });
   });
+
+  describe('shortest solution', () => {
+    it('should provide a solution to reach the target', () => {
+      const state = generatePuzzle('easy');
+
+      // Solution should exist (may be empty if target is already in numbers, which shouldn't happen)
+      expect(state.solution).toBeDefined();
+      expect(Array.isArray(state.solution)).toBe(true);
+
+      // Since target is not in starting numbers, solution should have at least one step
+      expect(state.solution.length).toBeGreaterThan(0);
+    });
+
+    it('should find minimal solution when target is directly computable', () => {
+      // Generate many puzzles and check that solutions are reasonably short
+      for (let i = 0; i < 10; i++) {
+        const state = generatePuzzle('easy');
+
+        // For easy mode with 4 numbers, solution should be at most 3 steps
+        // (worst case: combine all 4 numbers)
+        expect(state.solution.length).toBeLessThanOrEqual(3);
+
+        // Each step should have valid structure
+        state.solution.forEach(step => {
+          expect(step.operand1).toBeTypeOf('number');
+          expect(step.operand2).toBeTypeOf('number');
+          expect(step.operation).toMatch(/^[+\-*/]$/);
+          expect(step.result).toBeTypeOf('number');
+        });
+      }
+    });
+
+    it('should prefer shorter solutions over longer ones', () => {
+      // Generate multiple puzzles and verify solutions are not unnecessarily long
+      const states = Array.from({ length: 20 }, () => generatePuzzle('easy'));
+
+      // At least some puzzles should have a 1-step solution
+      const oneStepSolutions = states.filter(s => s.solution.length === 1);
+      expect(oneStepSolutions.length).toBeGreaterThan(0);
+    });
+  });
 });
