@@ -1,4 +1,4 @@
-import { GameState, Difficulty, DIFFICULTY_CONFIGS, Operation, GameMode } from '../game/types';
+import { GameState, Difficulty, DIFFICULTY_CONFIGS, Operation, GameMode, SolutionStep } from '../game/types';
 
 export function render(state: GameState, container: HTMLElement): void {
   container.innerHTML = '';
@@ -188,12 +188,14 @@ function createActionButtons(mode: GameMode): HTMLElement {
     actions = [
       { id: 'undo', label: 'Undo' },
       { id: 'skip', label: 'Skip' },
+      { id: 'explain', label: 'Explain' },
       { id: 'new-puzzle', label: 'New Puzzle' },
     ];
   } else {
     actions = [
       { id: 'undo', label: 'Undo' },
       { id: 'restart', label: 'Restart' },
+      { id: 'explain', label: 'Explain' },
       { id: 'new-puzzle', label: 'New Puzzle' },
     ];
   }
@@ -343,6 +345,73 @@ function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSk
   content.appendChild(heading);
   content.appendChild(statsBox);
   content.appendChild(buttonWrapper);
+  overlay.appendChild(content);
+
+  return overlay;
+}
+
+export function createExplanationOverlay(solution: SolutionStep[], target: number, initialNumbers: number[]): HTMLElement {
+  const overlay = document.createElement('div');
+  overlay.className = 'explanation-overlay';
+  overlay.id = 'explanation-overlay';
+
+  const content = document.createElement('div');
+  content.className = 'explanation-content';
+
+  const icon = document.createElement('div');
+  icon.className = 'explanation-icon';
+  icon.textContent = '\u{1F4A1}';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'How to Solve This Puzzle';
+
+  const intro = document.createElement('p');
+  intro.className = 'explanation-intro';
+  intro.textContent = `Starting with: ${initialNumbers.join(', ')}`;
+
+  const stepsBox = document.createElement('div');
+  stepsBox.className = 'explanation-steps';
+
+  const opLabels: Record<Operation, string> = {
+    '+': '+',
+    '-': '\u2212',
+    '*': '\u00d7',
+    '/': '\u00f7',
+  };
+
+  for (let i = 0; i < solution.length; i++) {
+    const step = solution[i];
+    const stepDiv = document.createElement('div');
+    stepDiv.className = 'explanation-step';
+
+    const stepNumber = document.createElement('span');
+    stepNumber.className = 'step-number';
+    stepNumber.textContent = `Step ${i + 1}:`;
+
+    const stepText = document.createElement('span');
+    stepText.className = 'step-text';
+    stepText.textContent = `${step.operand1} ${opLabels[step.operation]} ${step.operand2} = ${step.result}`;
+
+    stepDiv.appendChild(stepNumber);
+    stepDiv.appendChild(stepText);
+    stepsBox.appendChild(stepDiv);
+  }
+
+  const targetInfo = document.createElement('p');
+  targetInfo.className = 'explanation-target';
+  targetInfo.textContent = `The result ${solution[solution.length - 1]?.result || target} is the target!`;
+
+  const closeButton = document.createElement('button');
+  closeButton.className = 'action-btn explanation-close';
+  closeButton.id = 'explanation-close';
+  closeButton.textContent = 'Got It!';
+
+  content.appendChild(icon);
+  content.appendChild(heading);
+  content.appendChild(intro);
+  content.appendChild(stepsBox);
+  content.appendChild(targetInfo);
+  content.appendChild(closeButton);
   overlay.appendChild(content);
 
   return overlay;

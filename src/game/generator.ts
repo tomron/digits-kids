@@ -1,4 +1,4 @@
-import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState, GameMode } from './types';
+import { Difficulty, DifficultyConfig, DIFFICULTY_CONFIGS, Operation, GameState, GameMode, SolutionStep } from './types';
 import { randomInt, pickRandom, shuffle } from '../utils/random';
 import { applyOperation } from './engine';
 
@@ -33,6 +33,7 @@ function tryGeneratePuzzle(
   // Simulate a random sequence of operations to find a target
   const simNumbers = [...numbers];
   const steps = Math.min(2, simNumbers.length - 1); // Use 2 operations to create the target
+  const solutionSteps: SolutionStep[] = [];
 
   for (let step = 0; step < steps; step++) {
     if (simNumbers.length < 2) break;
@@ -42,6 +43,14 @@ function tryGeneratePuzzle(
 
     const move = pickRandom(validMoves);
     const result = applyOperation(move.op, move.a, move.b)!;
+
+    // Track this step in the solution
+    solutionSteps.push({
+      operand1: move.a,
+      operand2: move.b,
+      operation: move.op,
+      result,
+    });
 
     // Remove used numbers and add result
     const idxA = simNumbers.indexOf(move.a);
@@ -79,6 +88,7 @@ function tryGeneratePuzzle(
     timeRemaining: mode === 'timer' || mode === 'challenge' ? 60 : null,
     timerStartedAt: mode === 'timer' || mode === 'challenge' ? Date.now() : null,
     challengeStats: mode === 'challenge' ? { puzzlesSolved: 0, puzzlesSkipped: 0 } : null,
+    solution: solutionSteps,
   };
 }
 
@@ -159,6 +169,7 @@ function tryGenerateChallengePuzzle(
   // Simulate a random sequence of operations to find a target
   const simNumbers = [...numbers];
   const steps = Math.min(2, simNumbers.length - 1);
+  const solutionSteps: SolutionStep[] = [];
 
   for (let step = 0; step < steps; step++) {
     if (simNumbers.length < 2) break;
@@ -168,6 +179,14 @@ function tryGenerateChallengePuzzle(
 
     const move = pickRandom(validMoves);
     const result = applyOperation(move.op, move.a, move.b)!;
+
+    // Track this step in the solution
+    solutionSteps.push({
+      operand1: move.a,
+      operand2: move.b,
+      operation: move.op,
+      result,
+    });
 
     const idxA = simNumbers.indexOf(move.a);
     simNumbers.splice(idxA, 1);
@@ -197,6 +216,7 @@ function tryGenerateChallengePuzzle(
     status: 'playing',
     moveCount: 0,
     message: null,
+    solution: solutionSteps,
     // Preserve timer and stats
   };
 }

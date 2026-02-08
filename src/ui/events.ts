@@ -1,7 +1,7 @@
 import { GameState, Difficulty, Operation, GameMode, DIFFICULTY_CONFIGS } from '../game/types';
 import { executeMove, undoMove, restartPuzzle } from '../game/engine';
 import { generatePuzzle, generateChallengePuzzle } from '../game/generator';
-import { render } from './renderer';
+import { render, createExplanationOverlay } from './renderer';
 import { launchConfetti } from './animations';
 
 let state: GameState;
@@ -126,6 +126,38 @@ function bindEvents(): void {
   document.getElementById('challenge-share')?.addEventListener('click', async () => {
     await handleShare();
   });
+
+  document.getElementById('explain')?.addEventListener('click', () => {
+    handleExplain();
+  });
+
+  document.getElementById('explanation-close')?.addEventListener('click', () => {
+    closeExplanation();
+  });
+}
+
+function handleExplain(): void {
+  // Remove existing explanation overlay if present
+  const existingOverlay = document.getElementById('explanation-overlay');
+  if (existingOverlay) {
+    existingOverlay.remove();
+  }
+
+  // Create and show explanation overlay
+  const overlay = createExplanationOverlay(state.solution, state.target, state.initialNumbers);
+  container.appendChild(overlay);
+
+  // Re-bind the close button
+  document.getElementById('explanation-close')?.addEventListener('click', () => {
+    closeExplanation();
+  });
+}
+
+function closeExplanation(): void {
+  const overlay = document.getElementById('explanation-overlay');
+  if (overlay) {
+    overlay.remove();
+  }
 }
 
 async function handleShare(): Promise<void> {
