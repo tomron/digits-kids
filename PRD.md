@@ -25,14 +25,24 @@
 
 ## 3. Game Modes
 
-**Digits for Kids** offers two game modes:
+**Digits for Kids** offers three game modes:
 
 | Mode | Description |
 |------|-------------|
 | **Classic** | Unlimited time to solve the puzzle at your own pace |
 | **Timer** | 60-second countdown timer to add challenge and excitement |
+| **Challenge** | Solve as many puzzles as possible in 60 seconds with skip option |
 
 The player can switch between modes at any time. The default is **Classic**.
+
+### Challenge Mode Details
+- Players have 60 seconds to solve as many puzzles as they can
+- When a puzzle is solved, a new one is automatically generated
+- Players can skip a puzzle they find too difficult (counts as skipped)
+- At the end of 60 seconds, the game shows:
+  - Total puzzles solved
+  - Total puzzles skipped
+  - Final score display
 
 ---
 
@@ -65,11 +75,11 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 ┌─────────────────────────────────────────┐
 │           DIGITS FOR KIDS               │
 │                                         │
-│     Mode: [Classic] [Timer (60s)]       │
+│  Mode: [Classic] [Timer] [Challenge]    │
 │     Difficulty: [Easy] [Med] [Hard]     │
 │                                         │
 │         Target: ★ 42 ★                  │
-│            Timer: 0:45                  │
+│      Timer: 0:45  |  Solved: 3          │
 │                                         │
 │   ┌────┐ ┌────┐ ┌────┐ ┌────┐          │
 │   │  3 │ │  7 │ │ 10 │ │  5 │          │
@@ -80,10 +90,24 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 │   Current: 3 + 7 = ?         [Go]       │
 │                                         │
 │   ┌──────┐  ┌──────┐  ┌──────┐         │
-│   │ Undo │  │Restart│  │ New  │         │
+│   │ Undo │  │ Skip  │  │ New  │         │
 │   └──────┘  └──────┘  └──────┘         │
 │                                         │
 │   Moves: 1 / 3                          │
+└─────────────────────────────────────────┘
+```
+
+**Challenge Mode View:**
+```
+┌─────────────────────────────────────────┐
+│       TIME'S UP! Great Job! 🎉          │
+│                                         │
+│   ┌───────────────────────────────┐    │
+│   │   PUZZLES SOLVED:    5        │    │
+│   │   PUZZLES SKIPPED:   2        │    │
+│   └───────────────────────────────┘    │
+│                                         │
+│        [Play Again] [Change Mode]       │
 └─────────────────────────────────────────┘
 ```
 
@@ -106,8 +130,11 @@ Puzzles are **randomly generated on the client** with a guarantee that a solutio
 
 | Feature | Description |
 |---------|-------------|
-| **Game modes** | Choose between Classic (unlimited time) or Timer (60-second countdown) |
-| **Timer display** | Real-time countdown timer in Timer mode with timeout handling |
+| **Game modes** | Choose between Classic (unlimited time), Timer (60-second countdown), or Challenge (solve as many as possible) |
+| **Timer display** | Real-time countdown timer in Timer and Challenge modes with timeout handling |
+| **Skip button** | In Challenge mode, skip the current puzzle (counts as skipped) |
+| **Challenge stats** | Track and display solved and skipped puzzles during Challenge mode |
+| **Challenge results** | Show final score (solved/skipped) when Challenge mode timer expires |
 | **Puzzle board** | Display target number and available number tiles |
 | **Hard mode grid layout** | 2×3 grid layout for 6 numbers in Hard difficulty |
 | **Operation buttons** | +, −, ×, ÷ (filtered by difficulty) |
@@ -206,7 +233,7 @@ digits-kids/
 ```typescript
 type Difficulty = 'easy' | 'medium' | 'hard';
 type Operation = '+' | '-' | '*' | '/';
-type GameMode = 'classic' | 'timer';
+type GameMode = 'classic' | 'timer' | 'challenge';
 
 interface GameState {
   difficulty: Difficulty;
@@ -220,6 +247,7 @@ interface GameState {
   status: 'playing' | 'won' | 'timeout';
   timeRemaining: number | null;   // in seconds, null for classic mode
   timerStartedAt: number | null;  // timestamp when timer started
+  challengeStats: ChallengeStats | null; // stats for challenge mode
 }
 
 interface HistoryEntry {
@@ -228,6 +256,11 @@ interface HistoryEntry {
   operand2: number;
   operation: Operation;
   result: number;
+}
+
+interface ChallengeStats {
+  puzzlesSolved: number;          // total puzzles solved
+  puzzlesSkipped: number;         // total puzzles skipped
 }
 ```
 
@@ -263,9 +296,13 @@ The second approach is cleaner and more predictable. We'll use this one.
 
 ## 13. Acceptance Criteria
 
-- [ ] Player can select game mode (Classic or Timer).
+- [ ] Player can select game mode (Classic, Timer, or Challenge).
 - [ ] Timer mode shows a 60-second countdown timer.
 - [ ] Timer mode displays timeout overlay when time expires.
+- [ ] Challenge mode tracks solved and skipped puzzles.
+- [ ] Challenge mode allows skipping puzzles.
+- [ ] Challenge mode auto-generates new puzzle when one is solved.
+- [ ] Challenge mode shows final stats (solved/skipped) when time expires.
 - [ ] Player can select difficulty (Easy, Medium, Hard) and start a new puzzle.
 - [ ] Hard mode displays numbers in a 2×3 grid layout.
 - [ ] Puzzle always has at least one valid solution.
@@ -287,5 +324,7 @@ The second approach is cleaner and more predictable. We'll use this one.
 2. **Confetti in MVP** — celebration animations are included in the initial release.
 3. **Default colorful gradient theme** — no specific theme, use the playful gradient design described above.
 4. **Vite** — used for dev server and bundling.
-5. **Timer duration** — 60 seconds for Timer mode provides appropriate challenge for kids.
+5. **Timer duration** — 60 seconds for Timer and Challenge modes provides appropriate challenge for kids.
 6. **Hard mode grid layout** — 2×3 grid layout improves visual organization for 6 numbers.
+7. **Challenge mode behavior** — Auto-generates new puzzle on solve, shows skip button instead of restart, displays running stats.
+8. **Challenge mode stats** — Track both solved and skipped puzzles to encourage completion while allowing difficulty adjustment.

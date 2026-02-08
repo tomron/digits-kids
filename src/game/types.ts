@@ -1,6 +1,6 @@
 export type Difficulty = 'easy' | 'medium' | 'hard';
 export type Operation = '+' | '-' | '*' | '/';
-export type GameMode = 'classic' | 'timer';
+export type GameMode = 'classic' | 'timer' | 'challenge';
 
 export interface DifficultyConfig {
   label: string;
@@ -48,6 +48,11 @@ export interface HistoryEntry {
   result: number;
 }
 
+export interface ChallengeStats {
+  puzzlesSolved: number;
+  puzzlesSkipped: number;
+}
+
 export interface GameState {
   difficulty: Difficulty;
   mode: GameMode;
@@ -62,4 +67,5 @@ export interface GameState {
   message: string | null;
   timeRemaining: number | null; // in seconds, null for classic mode
   timerStartedAt: number | null; // timestamp when timer started
+  challengeStats: ChallengeStats | null; // stats for challenge mode
 }

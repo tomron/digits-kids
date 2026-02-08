@@ -7,13 +7,13 @@ export function render(state: GameState, container: HTMLElement): void {
   container.appendChild(createModeSelector(state.mode));
   container.appendChild(createDifficultySelector(state.difficulty));
   container.appendChild(createTarget(state.target));
-  if (state.mode === 'timer' && state.timeRemaining !== null) {
-    container.appendChild(createTimer(state.timeRemaining));
+  if ((state.mode === 'timer' || state.mode === 'challenge') && state.timeRemaining !== null) {
+    container.appendChild(createTimer(state.timeRemaining, state.mode === 'challenge' ? state.challengeStats : null));
   }
   container.appendChild(createNumberTiles(state));
   container.appendChild(createOperationButtons(state));
   container.appendChild(createMoveInfo(state));
-  container.appendChild(createActionButtons());
+  container.appendChild(createActionButtons(state.mode));
 
   if (state.message && state.status !== 'won' && state.status !== 'timeout') {
     container.appendChild(createMessage(state.message));
@@ -24,7 +24,11 @@ export function render(state: GameState, container: HTMLElement): void {
   }
 
   if (state.status === 'timeout') {
-    container.appendChild(createTimeoutOverlay());
+    if (state.mode === 'challenge' && state.challengeStats) {
+      container.appendChild(createChallengeResultsOverlay(state.challengeStats));
+    } else {
+      container.appendChild(createTimeoutOverlay());
+    }
   }
 }
 
@@ -42,6 +46,7 @@ function createModeSelector(current: GameMode): HTMLElement {
   const modes: { id: GameMode; label: string }[] = [
     { id: 'classic', label: 'Classic' },
     { id: 'timer', label: 'Timer (60s)' },
+    { id: 'challenge', label: 'Challenge' },
   ];
 
   for (const mode of modes) {
@@ -78,7 +83,7 @@ function createTarget(target: number): HTMLElement {
   return wrapper;
 }
 
-function createTimer(timeRemaining: number): HTMLElement {
+function createTimer(timeRemaining: number, challengeStats: { puzzlesSolved: number; puzzlesSkipped: number } | null = null): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'timer-display';
   wrapper.id = 'timer-display';
@@ -92,6 +97,15 @@ function createTimer(timeRemaining: number): HTMLElement {
   timerSpan.textContent = timeText;
 
   wrapper.appendChild(timerSpan);
+
+  // Add stats for challenge mode
+  if (challengeStats) {
+    const statsSpan = document.createElement('span');
+    statsSpan.className = 'challenge-stats';
+    statsSpan.textContent = ` | Solved: ${challengeStats.puzzlesSolved}`;
+    wrapper.appendChild(statsSpan);
+  }
+
   return wrapper;
 }
 
@@ -164,15 +178,25 @@ function createMoveInfo(state: GameState): HTMLElement {
   return wrapper;
 }
 
-function createActionButtons(): HTMLElement {
+function createActionButtons(mode: GameMode): HTMLElement {
   const wrapper = document.createElement('div');
   wrapper.className = 'action-buttons';
 
-  const actions = [
-    { id: 'undo', label: 'Undo' },
-    { id: 'restart', label: 'Restart' },
-    { id: 'new-puzzle', label: 'New Puzzle' },
-  ];
+  let actions: Array<{ id: string; label: string }>;
+
+  if (mode === 'challenge') {
+    actions = [
+      { id: 'undo', label: 'Undo' },
+      { id: 'skip', label: 'Skip' },
+      { id: 'new-puzzle', label: 'New Puzzle' },
+    ];
+  } else {
+    actions = [
+      { id: 'undo', label: 'Undo' },
+      { id: 'restart', label: 'Restart' },
+      { id: 'new-puzzle', label: 'New Puzzle' },
+    ];
+  }
 
   for (const action of actions) {
     const btn = document.createElement('button');
@@ -248,6 +272,64 @@ function createTimeoutOverlay(): HTMLElement {
   content.appendChild(icon);
   content.appendChild(heading);
   content.appendChild(paragraph);
+  content.appendChild(button);
+  overlay.appendChild(content);
+
+  return overlay;
+}
+
+function createChallengeResultsOverlay(stats: { puzzlesSolved: number; puzzlesSkipped: number }): HTMLElement {
+  const overlay = document.createElement('div');
+  overlay.className = 'challenge-results-overlay';
+
+  const content = document.createElement('div');
+  content.className = 'challenge-results-content';
+
+  const icon = document.createElement('div');
+  icon.className = 'challenge-icon';
+  icon.textContent = '\u{1F389}';
+
+  const heading = document.createElement('h2');
+  heading.textContent = 'Time\'s Up! Great Job!';
+
+  const statsBox = document.createElement('div');
+  statsBox.className = 'challenge-stats-box';
+
+  const solvedLine = document.createElement('div');
+  solvedLine.className = 'stat-line';
+  const solvedLabel = document.createElement('span');
+  solvedLabel.className = 'stat-label';
+  solvedLabel.textContent = 'Puzzles Solved:';
+  const solvedValue = document.createElement('span');
+  solvedValue.className = 'stat-value';
+  solvedValue.textContent = String(stats.puzzlesSolved);
+  solvedLine.appendChild(solvedLabel);
+  solvedLine.appendChild(document.createTextNode(' '));
+  solvedLine.appendChild(solvedValue);
+
+  const skippedLine = document.createElement('div');
+  skippedLine.className = 'stat-line';
+  const skippedLabel = document.createElement('span');
+  skippedLabel.className = 'stat-label';
+  skippedLabel.textContent = 'Puzzles Skipped:';
+  const skippedValue = document.createElement('span');
+  skippedValue.className = 'stat-value';
+  skippedValue.textContent = String(stats.puzzlesSkipped);
+  skippedLine.appendChild(skippedLabel);
+  skippedLine.appendChild(document.createTextNode(' '));
+  skippedLine.appendChild(skippedValue);
+
+  statsBox.appendChild(solvedLine);
+  statsBox.appendChild(skippedLine);
+
+  const button = document.createElement('button');
+  button.className = 'action-btn challenge-play-again';
+  button.id = 'challenge-play-again';
+  button.textContent = 'Play Again';
+
+  content.appendChild(icon);
+  content.appendChild(heading);
+  content.appendChild(statsBox);
   content.appendChild(button);
   overlay.appendChild(content);
 
