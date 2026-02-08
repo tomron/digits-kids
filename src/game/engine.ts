@@ -57,6 +57,8 @@ export function executeMove(state: GameState): GameState {
   // Remove the two used numbers and add the result
   const newNumbers = state.numbers.filter((_, idx) => idx !== i && idx !== j);
   newNumbers.push(result);
+  // Sort numbers in ascending order for better readability
+  newNumbers.sort((a, b) => a - b);
 
   const won = newNumbers.includes(state.target);
 
