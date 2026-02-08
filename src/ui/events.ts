@@ -1,6 +1,6 @@
 import { GameState, Difficulty, Operation, GameMode } from '../game/types';
 import { executeMove, undoMove, restartPuzzle } from '../game/engine';
-import { generatePuzzle } from '../game/generator';
+import { generatePuzzle, generateChallengePuzzle } from '../game/generator';
 import { render } from './renderer';
 import { launchConfetti } from './animations';
 
@@ -19,16 +19,29 @@ function renderAndBind(): void {
   bindEvents();
 
   if (state.status === 'won') {
-    stopTimer();
-    launchConfetti();
+    if (state.mode === 'challenge' && state.challengeStats) {
+      // In challenge mode, increment solved count and generate new puzzle
+      const newStats = {
+        puzzlesSolved: state.challengeStats.puzzlesSolved + 1,
+        puzzlesSkipped: state.challengeStats.puzzlesSkipped,
+      };
+      const newState = generateChallengePuzzle({ ...state, challengeStats: newStats });
+      state = newState;
+      render(state, container);
+      bindEvents();
+      launchConfetti();
+    } else {
+      stopTimer();
+      launchConfetti();
+    }
   }
 
   if (state.status === 'timeout') {
     stopTimer();
   }
 
-  // Start or update timer for timer mode
-  if (state.mode === 'timer' && state.status === 'playing') {
+  // Start or update timer for timer and challenge modes
+  if ((state.mode === 'timer' || state.mode === 'challenge') && state.status === 'playing') {
     startTimer();
   } else {
     stopTimer();
@@ -84,6 +97,16 @@ function bindEvents(): void {
     update(restartPuzzle(state));
   });
 
+  document.getElementById('skip')?.addEventListener('click', () => {
+    if (state.mode === 'challenge' && state.challengeStats) {
+      const newStats = {
+        puzzlesSolved: state.challengeStats.puzzlesSolved,
+        puzzlesSkipped: state.challengeStats.puzzlesSkipped + 1,
+      };
+      update(generateChallengePuzzle({ ...state, challengeStats: newStats }));
+    }
+  });
+
   document.getElementById('new-puzzle')?.addEventListener('click', () => {
     update(generatePuzzle(state.difficulty, state.mode));
   });
@@ -95,13 +118,17 @@ function bindEvents(): void {
   document.getElementById('timeout-new-puzzle')?.addEventListener('click', () => {
     update(generatePuzzle(state.difficulty, state.mode));
   });
+
+  document.getElementById('challenge-play-again')?.addEventListener('click', () => {
+    update(generatePuzzle(state.difficulty, state.mode));
+  });
 }
 
 function startTimer(): void {
   stopTimer(); // Clear any existing timer
 
   timerInterval = window.setInterval(() => {
-    if (state.mode !== 'timer' || state.status !== 'playing' || state.timerStartedAt === null) {
+    if ((state.mode !== 'timer' && state.mode !== 'challenge') || state.status !== 'playing' || state.timerStartedAt === null) {
       stopTimer();
       return;
     }
@@ -124,6 +151,14 @@ function startTimer(): void {
       const timerText = timerDisplay.querySelector('.timer-text');
       if (timerText) {
         timerText.textContent = timeText;
+      }
+
+      // Update challenge stats if in challenge mode
+      if (state.mode === 'challenge' && state.challengeStats) {
+        const statsText = timerDisplay.querySelector('.challenge-stats');
+        if (statsText) {
+          statsText.textContent = ` | Solved: ${state.challengeStats.puzzlesSolved}`;
+        }
       }
     }
   }, 100);

@@ -76,8 +76,9 @@ function tryGeneratePuzzle(
     status: 'playing',
     moveCount: 0,
     message: null,
-    timeRemaining: mode === 'timer' ? 60 : null,
-    timerStartedAt: mode === 'timer' ? Date.now() : null,
+    timeRemaining: mode === 'timer' || mode === 'challenge' ? 60 : null,
+    timerStartedAt: mode === 'timer' || mode === 'challenge' ? Date.now() : null,
+    challengeStats: mode === 'challenge' ? { puzzlesSolved: 0, puzzlesSkipped: 0 } : null,
   };
 }
 
@@ -129,4 +130,73 @@ function findValidMoves(numbers: number[], allowedOps: Operation[]): ValidMove[]
   }
 
   return moves;
+}
+
+/**
+ * Generate a new puzzle in challenge mode, preserving timer and stats
+ */
+export function generateChallengePuzzle(currentState: GameState): GameState {
+  const config = DIFFICULTY_CONFIGS[currentState.difficulty];
+
+  // Try until we get a good puzzle
+  for (let attempt = 0; attempt < 100; attempt++) {
+    const result = tryGenerateChallengePuzzle(config, currentState);
+    if (result) return result;
+  }
+
+  // Fallback — should rarely happen
+  return tryGenerateChallengePuzzle(config, currentState, true)!;
+}
+
+function tryGenerateChallengePuzzle(
+  config: DifficultyConfig,
+  currentState: GameState,
+  forceFallback = false
+): GameState | null {
+  // Generate starting numbers
+  const numbers = generateStartingNumbers(config);
+
+  // Simulate a random sequence of operations to find a target
+  const simNumbers = [...numbers];
+  const steps = Math.min(2, simNumbers.length - 1);
+
+  for (let step = 0; step < steps; step++) {
+    if (simNumbers.length < 2) break;
+
+    const validMoves = findValidMoves(simNumbers, config.operations);
+    if (validMoves.length === 0) break;
+
+    const move = pickRandom(validMoves);
+    const result = applyOperation(move.op, move.a, move.b)!;
+
+    const idxA = simNumbers.indexOf(move.a);
+    simNumbers.splice(idxA, 1);
+    const idxB = simNumbers.indexOf(move.b);
+    simNumbers.splice(idxB, 1);
+    simNumbers.push(result);
+  }
+
+  const target = pickRandom(simNumbers);
+
+  if (!forceFallback && (target < config.targetMin || target > config.targetMax)) {
+    return null;
+  }
+
+  if (numbers.includes(target)) {
+    return null;
+  }
+
+  return {
+    ...currentState,
+    target,
+    numbers: shuffle([...numbers]),
+    initialNumbers: [...numbers],
+    selectedIndices: [],
+    selectedOperation: null,
+    history: [],
+    status: 'playing',
+    moveCount: 0,
+    message: null,
+    // Preserve timer and stats
+  };
 }
